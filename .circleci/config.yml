@@ -151,13 +151,13 @@ jobs:
           command: |
             apk add --update ansible
             apk add tar gzip
-            apk add --no-cache aws-cli
+            apk add aws-cli
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      # Here's where you will add some code to rollback on failure    
+      - destroy-environment     
 workflows:
   default:
     jobs:
