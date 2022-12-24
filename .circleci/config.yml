@@ -151,7 +151,9 @@ jobs:
           command: |
             apk add --update ansible
             apk add tar gzip
-            apk add aws-cli
+            apk add --update python3 python3-dev py-pip build-base 
+            pip install awscli==$AWSCLI_VERSION --upgrade --user 
+            rm -rf /var/cache/apk/*
       - run:
           name: Configure server
           command: |
