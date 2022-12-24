@@ -1,14 +1,25 @@
 version: 2.1
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: "If an AWS CloudFormation stack exists, this command will delete
+      the stack \nand wait for the operation to complete successfully.\n"
+    parameters:
+      stack-name:
+        description: The CloudFormation stack name as identified inside AWS.
+        type: string
     steps:
-      - run:
-          name: Destroy environments
-          when: on_fail
-          command: |
+    - run:
+        name: Destroy environments
+        when: on_fail
+        command: |-
+          if aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}; then
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation wait stack-delete-complete --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+          fi     
+          if aws cloudformation describe-stacks --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}; then
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation wait stack-delete-complete --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+          fi  
 jobs:
   build-frontend:
     docker:
@@ -115,7 +126,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -136,10 +147,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Here's where we  will rollback on failure 
-      - run:
-          name: Failure
-          command: "destroy-environment"
-          when: on_fail 
+      - destroy_environment 
 workflows:
   default:
     jobs:
@@ -155,7 +163,7 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
+          # filters:
+          #   branches:
+          #     only: [test-feature-branch]
               
