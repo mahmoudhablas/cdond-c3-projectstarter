@@ -195,7 +195,6 @@ jobs:
                 curl https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment 
-      - revert-migrations 
 
   deploy-frontend:
     docker:
@@ -231,7 +230,7 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
-      - 
+      - revert-migrations 
 workflows:
   default:
     jobs:
