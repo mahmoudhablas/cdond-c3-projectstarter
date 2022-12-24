@@ -151,8 +151,9 @@ jobs:
           command: |
             apk add --update ansible
             apk add tar gzip
-            apk add --update python3 python3-dev py-pip build-base 
-            pip install awscli==1.20.7 --upgrade --user 
+            add --no-cache python3 py3-pip 
+            pip3 install --upgrade pip 
+            pip3 install --no-cache-dir awscli 
             rm -rf /var/cache/apk/*
       - run:
           name: Configure server

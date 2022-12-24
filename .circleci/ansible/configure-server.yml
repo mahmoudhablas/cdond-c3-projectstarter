@@ -18,7 +18,7 @@
            host: "web"
            port: 3030
            delay: 10
-           timeout: 600
+           timeout: 120
            state: started
            msg: "Backend server is not running"
 
