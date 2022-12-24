@@ -1,0 +1,26 @@
+---
+- name: "update yum packages."
+  become: true
+  yum:
+    update_cache: true
+
+- name: "upgrade packages"
+  become: true
+  yum:
+    name: "*"
+    state: latest
+
+- name: "install node dependencies"
+  become: true
+  yum:
+    name: ["nodejs", "npm"]
+    state: present
+    update_cache: true
+
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: true
+    production: true
+    state: present
