@@ -3,10 +3,6 @@ commands:
   destroy-environment:
     description: "If an AWS CloudFormation stack exists, this command will delete
       the stack \nand wait for the operation to complete successfully.\n"
-    parameters:
-      stack-name:
-        description: The CloudFormation stack name as identified inside AWS.
-        type: string
     steps:
     - run:
         name: Destroy environments
