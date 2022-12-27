@@ -1,18 +1,22 @@
 ---
-- name: "create ~/backend"
-  ansible.builtin.file:
+- name: "Creates backend app directory"
+  file:
     path: ~/backend
     state: directory
-    mode: '0755'
 
-- name: Extract artifact.tar.gz into ~/backend 
-  unarchive:  
-    src: artifact.tar.gz  
-    dest: ~/backend/
+- name: "Copy compiled backend app"
+  copy:
+    src: dist.zip
+    dest: "~/backend/dist.zip"
 
+- name: "Unzip backend files to correct directory"
+  shell: |
+    cd ~/backend
+    unzip dist.zip
+    rm -rf dist.zip
 - name: "start server"
   shell: |
-    cd ~/backend/artifact
+    cd ~/backend
     npm install
     pm2 stop default
     pm2 start npm -- start
