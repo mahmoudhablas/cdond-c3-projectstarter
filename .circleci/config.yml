@@ -19,7 +19,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS = curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            SUCCESS = $(curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
              cd ~/project/backend
@@ -289,6 +289,8 @@ jobs:
       - image: python:3.7-alpine3.11 
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
