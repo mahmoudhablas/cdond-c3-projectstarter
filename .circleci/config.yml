@@ -230,11 +230,10 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' 
-                                --filters "Name=tag:project,Values=udapeople" --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> .circleci/outputs/backend_url.txt
+            echo API_URL="http://${BACKEND_IP}:3030" >> .circleci/temp/backend_url.txt
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -298,7 +297,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-              API_URL=`cat .circleci/outputs/backend_url.txt`
+              API_URL=`cat .circleci/temp/backend_url.txt`
               echo "${API_URL}"
               if curl "${API_URL}/api/status" | grep "ok"
               then
