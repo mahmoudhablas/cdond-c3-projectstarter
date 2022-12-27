@@ -233,8 +233,8 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> .circleci/temp/backend_url.txt
-            cat frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> .circleci/tempfiles/backend_url.txt
+            cat .circleci/tempfiles/backend_url.txt
       - run:
           name: Deploy frontend objects
           command: |
@@ -243,6 +243,10 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/tempfiles/backend_url.txt
       - destroy-environment
       - revert-migrations 
   deploy-backend:
@@ -297,7 +301,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-              API_URL=`cat .circleci/temp/backend_url.txt`
+              API_URL=`cat .circleci/tempfiles/backend_url.txt`
               echo "${API_URL}"
               if curl "${API_URL}/api/status" | grep "ok"
               then
