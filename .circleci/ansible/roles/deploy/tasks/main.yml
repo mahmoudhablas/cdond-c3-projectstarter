@@ -8,7 +8,7 @@
 - name: Extract artifact.tar.gz into ~/backend 
   unarchive:  
     src: artifact.tar.gz  
-    dest: ~/backend/artifact.tar.gz
+    dest: ~/backend/
 
 - name: "start server"
   shell: |
