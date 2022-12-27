@@ -3,24 +3,30 @@ commands:
   destroy-environment:
     description: "If an AWS CloudFormation stack exists, this command will delete
       the stack \nand wait for the operation to complete successfully.\n"
+    parameters:
+      workflow_id:
+        type: string
     steps:
     - run:
         name: Destroy environments
         when: on_fail
         command: |-
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} 
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.    
+    parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS = $(curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/migration_${CIRCLE_WORKFLOW_ID:0:7})
-            if $SUCCESS==1 ; 
+            SUCCESS = $(curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/migration_<< parameters.workflow_id >>)
+            if $SUCCESS=1 ; 
             then
              cd ~/project/backend
              npm install
@@ -152,7 +158,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment 
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -176,7 +183,8 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment     
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"     
   run-migrations: 
     docker:
       - image: python:3.7-alpine3.11
@@ -208,7 +216,8 @@ jobs:
             then
                 curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - destroy-environment 
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
   deploy-frontend:  
     docker:
@@ -247,8 +256,10 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/tempfiles/backend_url.txt
-      - destroy-environment
-      - revert-migrations 
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -282,8 +293,10 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat ~/project/.circleci/ansible/inventory.txt
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
-      - destroy-environment
-      - revert-migrations  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11 
@@ -305,6 +318,7 @@ jobs:
           command: |
               API_URL=`cat .circleci/tempfiles/backend_url.txt`
               echo "${API_URL}"
+              curl -s ${API_URL}/api/status
               if curl -s ${API_URL}/api/status | grep "ok"
               then
                   return 0
@@ -322,8 +336,10 @@ jobs:
             else
               return 1
             fi
-      - destroy-environment
-      - revert-migrations  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 workflows:
   default:
     jobs:
