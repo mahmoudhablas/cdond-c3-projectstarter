@@ -241,7 +241,7 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> .circleci/tempfiles/backend_url.txt
+            echo "http://${BACKEND_IP}:3030" >> .circleci/tempfiles/backend_url.txt
             cat .circleci/tempfiles/backend_url.txt
       - run:
           name: Deploy frontend objects
