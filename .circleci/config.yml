@@ -217,7 +217,43 @@ jobs:
             fi
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
-
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:    
+          fingerprints: ["cf:8f:06:ae:82:a3:5c:71:a8:df:12:bb:33:60:f2:ae"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add tar gzip zip
+            apk add --no-cache python3 py3-pip 
+            pip3 install --upgrade pip 
+            pip3 install --no-cache-dir awscli 
+            rm -rf /var/cache/apk/*
+            apk add --update nodejs npm
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd dist
+            cp ../package.json .
+            zip -rq dist.zip *
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+            mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
+            echo "Contents  of the inventory.txt file is -------"
+            cat ~/project/.circleci/ansible/inventory.txt
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
   deploy-frontend:  
     docker:
       - image: python:3.7-alpine3.11
@@ -259,43 +295,7 @@ jobs:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
-  deploy-backend:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:    
-          fingerprints: ["cf:8f:06:ae:82:a3:5c:71:a8:df:12:bb:33:60:f2:ae"]
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-            apk add tar gzip zip
-            apk add --no-cache python3 py3-pip 
-            pip3 install --upgrade pip 
-            pip3 install --no-cache-dir awscli 
-            rm -rf /var/cache/apk/*
-            apk add --update nodejs npm
-      - run:
-          name: Deploy backend
-          command: |
-            cd backend
-            npm i
-            npm run build
-            cd dist
-            cp ../package.json .
-            zip -rq dist.zip *
-            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-            mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
-            echo "Contents  of the inventory.txt file is -------"
-            cat ~/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+  
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11 
@@ -313,12 +313,6 @@ jobs:
             apk add --update nodejs npm
             apk add curl
       - run:
-          name: Backend smoke test.
-          command: |
-              API_URL=`cat .circleci/tempfiles/backend_url.txt`
-              echo "${API_URL}"
-              curl -s ${API_URL}/api/status
-      - run:
           name: Frontend smoke test.
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
@@ -329,6 +323,12 @@ jobs:
             else
               return 1
             fi
+      - run:
+          name: Backend smoke test.
+          command: |
+              API_URL=`cat .circleci/tempfiles/backend_url.txt`
+              echo "${API_URL}"
+              curl -s $API_URL/api/status
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
