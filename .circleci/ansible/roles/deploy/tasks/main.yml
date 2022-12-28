@@ -5,10 +5,9 @@
     state: directory
 
 - name: "Copy compiled backend app"
-  become: true
   copy:
     src: artifact.tar.gz
-    dest: "~/backend/artifact.tar.gz"
+    dest: ~/backend/artifact.tar.gz
 
 - name: "Unzip backend files to correct directory"
   become: true
