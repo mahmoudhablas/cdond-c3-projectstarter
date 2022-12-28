@@ -243,9 +243,9 @@ jobs:
             npm i
             npm run build
             cd ..
-            zip -rq dist.zip backend
+            tar -C backend -czvf artifact.tar.gz .
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-            mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
             echo "Contents  of the inventory.txt file is -------"
             cat ~/project/.circleci/ansible/inventory.txt
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
