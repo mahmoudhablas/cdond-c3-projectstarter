@@ -31,7 +31,7 @@ commands:
              npm install
              npm run migrations:revert
             fi
-jobs:
+jobs: 
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
