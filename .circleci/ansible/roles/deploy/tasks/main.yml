@@ -14,6 +14,11 @@
     cd ~/backend
     tar xvzf artifact.tar.gz -C .
 
+- name: "npm install"
+  command: npm i
+  args:
+    chdir: ~/backend
+    
 - name: "run server"
   command: pm2 start -f ./main.js
   args:
