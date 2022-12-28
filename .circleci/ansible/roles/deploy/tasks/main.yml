@@ -14,21 +14,9 @@
     cd ~/backend
     unzip dist.zip
     rm -rf dist.zip
-- name: "Install NPM"
+- name: "start server"
   shell: |
     cd ~/backend
     npm install
-- name: "Executing node"
-  shell: |
-    export
-    cd ~/backend
-    pm2 start main.js
-  register: execute_node
-
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
-
-- name: "Configure pm2 to start as service"
-  shell: |
-    env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu
+    pm2 stop default
+    pm2 start npm -- start  
