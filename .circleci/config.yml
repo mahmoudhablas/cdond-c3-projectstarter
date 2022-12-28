@@ -328,9 +328,7 @@ jobs:
           command: |
               API_URL=`cat .circleci/tempfiles/backend_url.txt`
               echo "${API_URL}/api/status"
-              THE_URL=$API_URL | sed 's/ //g'
-              echo "${THE_URL}"
-              curl -s $THE_URL
+              curl -s ${API_URL}/api/status
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
