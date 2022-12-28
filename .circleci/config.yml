@@ -242,9 +242,8 @@ jobs:
             cd backend
             npm i
             npm run build
-            cd dist
-            cp ../package.json .
-            zip -rq dist.zip *
+            cd ..
+            zip -rq dist.zip backend
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
             mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
             echo "Contents  of the inventory.txt file is -------"

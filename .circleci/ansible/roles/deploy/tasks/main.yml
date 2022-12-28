@@ -16,15 +16,8 @@
     rm -rf dist.zip
 - name: "Install NPM"
   shell: |
-    cd ~/backend
+    cd ~/backend/backend
     npm install
-- name: "Executing node"
-  shell: |
-    export
-    cd ~/backend
+    npm install
+    pm2 stop default
     pm2 start npm -- start
-  register: execute_node
-
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
