@@ -15,7 +15,6 @@
     tar xvzf artifact.tar.gz -C .
 
 - name: "run server"
-  become: true
   command: pm2 start -f ./main.js
   args:
     chdir: ~/backend
