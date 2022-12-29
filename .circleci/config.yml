@@ -383,7 +383,8 @@ jobs:
           command: |
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              export workFlowId=${OldWorkflowID:10:-1}
+              export workFlowId=${OldWorkflowID:10:7}
+              echo workFlowId= "${workFlowId}"
               aws s3 rm "s3://udapeople-${workFlowId}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${workFlowId}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${workFlowId}"
