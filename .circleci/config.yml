@@ -354,7 +354,7 @@ jobs:
                     --stack-name InitialStack \
                     --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
                     --tags project=udapeople
-
+            curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/OLD_WORKFLOW_ID  -d $OLD_WORKFLOW_ID
             echo "CURRENT_WORKFLOW_ID= ${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -383,7 +383,8 @@ jobs:
           command: |
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              export workFlowId=${OldWorkflowID:10:7}
+              OLD_WORK_FLOW_ID=$(curl --insecure https://kvdb.io/5RLnAQyyjz2KLJANPX9x6k/OLD_WORKFLOW_ID)
+              workFlowId=${OLD_WORK_FLOW_ID:10:7}
               echo workFlowId= "${workFlowId}"
               aws s3 rm "s3://udapeople-${workFlowId}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${workFlowId}"
